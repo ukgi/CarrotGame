@@ -75,6 +75,12 @@ header {
   justify-content: center;
 }
 
+.gameSection {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .textBox {
   display: none;
   padding: 12px 24px;
@@ -85,6 +91,7 @@ header {
   position: absolute;
   top: 50%;
   background-color: blanchedalmond;
+  z-index: 10;
 }
 
 .textBox > button {
