@@ -93,11 +93,14 @@ function stopCount(timer) {
 }
 
 function makeCarrots() {
+  const carrotSize = 80;
   const gameSectionX = gameSection.getBoundingClientRect().x;
-  const gameSectionRight = gameSection.getBoundingClientRect().right;
+  const gameSectionRight =
+    gameSection.getBoundingClientRect().right - carrotSize;
 
   const gameSectionY = gameSection.getBoundingClientRect().y;
-  const gameSectionBottom = gameSection.getBoundingClientRect().bottom;
+  const gameSectionBottom =
+    gameSection.getBoundingClientRect().bottom - carrotSize;
 
   for (let i = 0; i < carrotNumber; i++) {
     const carrotX = random(gameSectionX, gameSectionRight);
@@ -117,11 +120,13 @@ function makeCarrots() {
 }
 
 function makeBugs() {
+  const bugSize = 50;
   const gameSectionX = gameSection.getBoundingClientRect().x;
-  const gameSectionRight = gameSection.getBoundingClientRect().right;
+  const gameSectionRight = gameSection.getBoundingClientRect().right - bugSize;
 
   const gameSectionY = gameSection.getBoundingClientRect().y;
-  const gameSectionBottom = gameSection.getBoundingClientRect().bottom;
+  const gameSectionBottom =
+    gameSection.getBoundingClientRect().bottom - bugSize;
 
   for (let i = 0; i < bugNumber; i++) {
     const bugX = random(gameSectionX, gameSectionRight);
