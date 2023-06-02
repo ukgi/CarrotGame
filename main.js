@@ -10,11 +10,12 @@ let carrotNumber = 12;
 let bugNumber = 12;
 let isStart = false;
 let timer;
+const catchCarrot = [];
 
 gameBtn.addEventListener("click", (e) => {
   if (e.target.className === "fas fa-play") {
     startGame();
-  } else {
+  } else if (e.target.className === "fas fa-stop") {
     const gameIng = isStart;
     stopGame(gameIng);
   }
@@ -30,9 +31,30 @@ textBox.addEventListener("click", (e) => {
   }
 });
 
+gameSection.addEventListener("click", (e) => {
+  const id = e.target.dataset.id;
+  const name = e.target.dataset.name;
+
+  if (id) {
+    if (name === "bug") {
+      stopGame(false);
+    } else {
+      gameSection.removeChild(e.target);
+      catchCarrot.push(id);
+      carrotCounter.textContent = `${carrotNumber - catchCarrot.length}`;
+
+      if (catchCarrot.length === carrotNumber) {
+        winGame();
+      }
+    }
+  }
+});
+
 function startGame() {
   resetGame();
   isStart = true;
+  header.style.pointerEvents = "auto";
+  gameSection.style.pointerEvents = "auto";
   // 1. 시작 버튼의 모양을 중지 버튼으로 바꾼다
   const playIcon = gameBtn.querySelector(".fa-play");
   playIcon && playIcon.classList.replace("fa-play", "fa-stop");
@@ -76,8 +98,25 @@ function stopGame(isGameIng) {
   }
 }
 
+function winGame() {
+  isStart = false;
+  stopCount(timer);
+  textBox.style.display = "block";
+
+  header.style.pointerEvents = "none";
+  gameSection.style.pointerEvents = "none";
+
+  textBox.innerHTML = `
+    <h1>성공 😃</h1>
+      <button class="retryBtn">
+        <i class="fas fa-redo"></i>
+      </button>
+  `;
+}
+
 function startCount() {
-  let count = 3;
+  let count = 9;
+  counter.textContent = `${count + 1}`;
   timer = setInterval(() => {
     if (count === 0) {
       isStart = false;
@@ -108,6 +147,8 @@ function makeCarrots() {
 
     const carrot = document.createElement("img");
     carrot.setAttribute("src", "./assets/img/carrot.png");
+    carrot.setAttribute("data-name", "carrot");
+    carrot.setAttribute("data-id", `${i}`);
     carrot.style.position = "absolute";
 
     const carrotTop = carrotY - gameSectionY;
@@ -134,6 +175,8 @@ function makeBugs() {
 
     const bug = document.createElement("img");
     bug.setAttribute("src", "./assets/img/bug.png");
+    bug.setAttribute("data-name", "bug");
+    bug.setAttribute("data-id", `${i}`);
     bug.style.position = "absolute";
 
     const bugTop = bugY - gameSectionY;
@@ -146,6 +189,7 @@ function makeBugs() {
 }
 
 function resetGame() {
+  catchCarrot.splice(0);
   gameSection.replaceChildren();
 }
 
