@@ -5,6 +5,13 @@
   font-size: 24px;
 }
 
+button {
+  outline: none;
+  border: none;
+  cursor: pointer;
+  background-color: inherit;
+}
+
 body {
   width: 100%;
   height: 100vh;
@@ -25,11 +32,88 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
 }
 
-header > button {
+.game-section {
+  position: relative;
+  height: 50%;
+}
+
+.game-btn {
   background-color: antiquewhite;
+  border: 2px solid black;
   width: 2.5rem;
   height: 2.5rem;
+}
+
+.timer {
+  padding: 12px 24px;
+  border: 2px solid black;
+  background-color: white;
+}
+
+.timer > h1,
+.carrot-count > h1 {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.carrot-count {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid black;
+  background-color: lightcoral;
+  color: white;
+}
+
+.ready-count {
+  width: 12rem;
+  height: 8rem;
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: aliceblue;
+  border: 2px solid black;
+  border-radius: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ready-count > h1 {
+  font-size: 2rem;
+}
+
+.carrot,
+.bug {
+  position: absolute;
   cursor: pointer;
+}
+
+.textBox {
+  width: 12rem;
+  height: 8rem;
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: aliceblue;
+  border: 2px solid black;
+  border-radius: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.textBox > h1 {
+  font-size: 2rem;
+}
+
+.textBox > button > i {
+  font-size: 2rem;
 }
