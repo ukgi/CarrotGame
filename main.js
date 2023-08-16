@@ -1,39 +1,44 @@
+// 😱 전역변수를 함수 내부에서 바로 가져다 사용하게 되면 안된다
+// 왜냐하면 전역변수의 값이 달라지게 되서 다시 세팅해야하기 때문이다.
+// 함수의 파라미터를 이용해서 변형해야한다. (값 복사)
+
 const gameBtn = document.querySelector(".game-btn");
 const gameSection = document.querySelector(".game-section");
-const carroutCounter = document.querySelector(".carrot-count");
+const carrotCounter = document.querySelector(".carrot-count");
 const header = document.querySelector("header");
+
 let timeoutId = 0;
 let carrotCount = 10;
 let bugCount = 10;
 
-gameBtn.addEventListener("click", readyCount);
+gameBtn.addEventListener("click", readyCounter);
 
-function readyCount() {
+function readyCounter() {
+  let preparationTime = 3;
   header.style.pointerEvents = "none";
-
-  let readyCount = 3;
 
   const readyCountBox = document.createElement("div");
   readyCountBox.setAttribute("class", "ready-count");
   const readyCountNumber = document.createElement("h1");
-  readyCountNumber.textContent = readyCount;
+  readyCountNumber.textContent = preparationTime;
   readyCountBox.appendChild(readyCountNumber);
   gameSection.appendChild(readyCountBox);
 
-  const timeoutId = setInterval(() => {
-    readyCountNumber.textContent = --readyCount;
-    if (readyCount === 0) {
-      clearInterval(timeoutId);
+  const readyTimeoutId = setInterval(() => {
+    readyCountNumber.textContent = --preparationTime;
+    if (preparationTime === 0) {
+      clearInterval(readyTimeoutId);
       gameSection.removeChild(gameSection.lastElementChild);
       startGame();
     }
   }, 1000);
 }
 
+// 초기화는 여기서
 function startGame() {
   header.style.pointerEvents = "auto";
 
-  let count = 20;
+  let count = 10;
   const timer = document.querySelector(".timer");
   timer.lastElementChild.textContent = count;
 
@@ -44,11 +49,11 @@ function startGame() {
     timer.lastElementChild.textContent = count;
   }, 1000);
 
-  makeCarrot(carrotCount);
-  makeBug(bugCount);
+  makeItem("carrot", 90, carrotCount);
+  makeItem("bug", 60, bugCount);
 
   gameBtn.firstElementChild.classList.replace("fa-play", "fa-stop");
-  gameBtn.removeEventListener("click", readyCount);
+  gameBtn.removeEventListener("click", readyCounter);
   gameBtn.addEventListener("click", () => {
     stopGame(timeoutId);
   });
@@ -60,16 +65,22 @@ function stopGame(timeoutId) {
     gameSection.removeChild(child);
   });
   clearInterval(timeoutId);
-  makeTextBox("RETRY?🤔");
+  makeTextBox({
+    status: "stop",
+    message: "RETRY?🤔",
+  });
 }
 
-function failGame(timeoutId) {
+function failGame() {
   header.style.pointerEvents = "none";
   clearInterval(timeoutId);
   [...gameSection.children].forEach((child) => {
     gameSection.removeChild(child);
   });
-  makeTextBox("실패😱");
+  makeTextBox({
+    status: "fail",
+    message: "실패😱",
+  });
 }
 
 function successGame() {
@@ -78,87 +89,67 @@ function successGame() {
   [...gameSection.children].forEach((child) => {
     gameSection.removeChild(child);
   });
-  makeTextBox("성공!😁");
+  makeTextBox({
+    status: "success",
+    message: "성공!😁",
+  });
 }
 
-function makeCarrot(carrotCount) {
-  carroutCounter.firstElementChild.textContent = carrotCount;
+function makeItem(type, size, count) {
   const fragment = document.createDocumentFragment();
-  const carrotSize = 90;
-  for (let i = carrotCount; i > 0; i--) {
-    const carrot = document.createElement("img");
-    carrot.setAttribute("src", "./assets/img/carrot.png");
-    carrot.setAttribute("alt", "carrot");
-    carrot.setAttribute("class", "carrot");
+  const itemSize = size;
+  carrotCounter.lastElementChild.textContent = count;
+
+  for (let i = count; i > 0; i--) {
+    const item = document.createElement("img");
+    item.setAttribute("src", `./assets/img/${type}.png`);
+    item.setAttribute("alt", `${type}`);
+    item.setAttribute("class", `${type}`);
 
     const { right, left, top, bottom } = gameSection.getBoundingClientRect();
 
-    const carrotX = getRandomNumber(left + carrotSize, right - carrotSize);
-    const carrotY = getRandomNumber(top + carrotSize, bottom - carrotSize);
-    carrot.style.transform = `translate(${carrotX - left}px, ${
-      carrotY - top
-    }px)`;
-    fragment.appendChild(carrot);
+    const itemX = getRandomNumber(left + itemSize, right - itemSize);
+    const itemY = getRandomNumber(top + itemSize, bottom - itemSize);
+    item.style.transform = `translate(${itemX - left}px, ${itemY - top}px)`;
+    fragment.appendChild(item);
   }
 
-  [...fragment.children].forEach((carrot) => {
-    carrot.addEventListener("click", () => {
-      carrotCount--;
-      console.log(carrotCount);
-      carrot.remove();
-      carroutCounter.firstElementChild.textContent = carrotCount;
-
-      if (carrotCount === 0) {
+  gameSection.addEventListener("click", (e) => {
+    if (e.target.className === "carrot") {
+      e.target.remove();
+      count--;
+      carrotCounter.lastElementChild.textContent = count;
+      if (count === 0) {
         successGame();
       }
-    });
+    } else if (e.target.className === "bug") {
+      failGame();
+    }
   });
+
   gameSection.appendChild(fragment);
 }
 
-function makeBug(bugCount) {
-  const fragment = document.createDocumentFragment();
-  const bugSize = 60;
-  for (let i = bugCount; i > 0; i--) {
-    const bug = document.createElement("img");
-    bug.setAttribute("src", "./assets/img/bug.png");
-    bug.setAttribute("alt", "bug");
-    bug.setAttribute("class", "bug");
-
-    const { right, left, top, bottom } = gameSection.getBoundingClientRect();
-
-    const bugX = getRandomNumber(left + bugSize, right - bugSize);
-    const bugY = getRandomNumber(top + bugSize, bottom - bugSize);
-    bug.style.transform = `translate(${bugX - left}px, ${bugY - top}px)`;
-    fragment.appendChild(bug);
-  }
-
-  [...fragment.children].forEach((bug) => {
-    bug.addEventListener("click", () => {
-      failGame(timeoutId);
-    });
-  });
-  gameSection.appendChild(fragment);
-}
-
-function makeTextBox(status) {
+function makeTextBox({ status, message }) {
   const box = document.createElement("div");
   box.setAttribute("class", "textBox");
   const boxTitle = document.createElement("h1");
-  boxTitle.textContent = status;
+  boxTitle.textContent = message;
   box.appendChild(boxTitle);
 
-  const button = document.createElement("button");
-  box.appendChild(button);
+  if (status === "fail" || "success" || "stop") {
+    const button = document.createElement("button");
+    box.appendChild(button);
 
-  const refreshBtn = document.createElement("i");
-  refreshBtn.setAttribute("class", "fas fa-redo");
-  button.appendChild(refreshBtn);
+    const refreshBtn = document.createElement("i");
+    refreshBtn.setAttribute("class", "fas fa-redo");
+    button.appendChild(refreshBtn);
 
-  button.addEventListener("click", () => {
-    gameSection.removeChild(box);
-    readyCount();
-  });
+    button.addEventListener("click", () => {
+      gameSection.removeChild(box);
+      readyCounter();
+    });
+  }
 
   gameSection.appendChild(box);
 }
