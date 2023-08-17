@@ -1,7 +1,3 @@
-// 😱 전역변수를 함수 내부에서 바로 가져다 사용하게 되면 안된다
-// 왜냐하면 전역변수의 값이 달라지게 되서 다시 세팅해야하기 때문이다.
-// 함수의 파라미터를 이용해서 변형해야한다. (값 복사)
-
 const gameBtn = document.querySelector(".game-btn");
 const gameSection = document.querySelector(".game-section");
 const carrotCounter = document.querySelector(".carrot-count");
@@ -10,22 +6,21 @@ const header = document.querySelector("header");
 let timeoutId = 0;
 let carrotCount = 10;
 let bugCount = 10;
+let heart;
 
 gameBtn.addEventListener("click", readyCounter);
 
+// readyCounter
+// 카운터할 변수를 전달하면 카운터를 진행한 후 게임을 실행시켜주는 기능
 function readyCounter() {
   let preparationTime = 3;
   header.style.pointerEvents = "none";
 
-  const readyCountBox = document.createElement("div");
-  readyCountBox.setAttribute("class", "ready-count");
-  const readyCountNumber = document.createElement("h1");
-  readyCountNumber.textContent = preparationTime;
-  readyCountBox.appendChild(readyCountNumber);
-  gameSection.appendChild(readyCountBox);
+  makeReadyCounterBox(preparationTime);
 
   const readyTimeoutId = setInterval(() => {
-    readyCountNumber.textContent = --preparationTime;
+    document.querySelector(".ready-count").lastElementChild.textContent =
+      --preparationTime;
     if (preparationTime === 0) {
       clearInterval(readyTimeoutId);
       gameSection.removeChild(gameSection.lastElementChild);
@@ -34,9 +29,26 @@ function readyCounter() {
   }, 1000);
 }
 
-// 초기화는 여기서
+// makeReadyCounterBox
+// 카운터박스(카운터를 보여주는 박스)를 만들어주는 기능
+function makeReadyCounterBox(time) {
+  const readyCountBox = document.createElement("div");
+  readyCountBox.setAttribute("class", "ready-count");
+  const readyCountNumber = document.createElement("h1");
+  readyCountNumber.textContent = time;
+  readyCountBox.appendChild(readyCountNumber);
+  gameSection.appendChild(readyCountBox);
+}
+
+// startGame
+// 게임을 실행하는 기능
+// 타이머가 실행, 벌레와 당근 생성
+// 타이머가 종료되면 게임 종료
 function startGame() {
   header.style.pointerEvents = "auto";
+
+  heart = new HeartMaker();
+  console.log(heart.heart);
 
   let count = 10;
   const timer = document.querySelector(".timer");
@@ -57,8 +69,24 @@ function startGame() {
   gameBtn.addEventListener("click", () => {
     stopGame(timeoutId);
   });
+
+  gameSection.addEventListener("click", handleItemClick);
 }
 
+function handleItemClick(e) {
+  if (e.target.className === "carrot") {
+    e.target.remove();
+    count--;
+    carrotCounter.lastElementChild.textContent = count;
+    if (count === 0) {
+      successGame();
+    }
+  } else if (e.target.className === "bug") {
+    heart.decreaseHeart();
+  }
+}
+
+// 게임을 중지시켜주는 기능
 function stopGame(timeoutId) {
   header.style.pointerEvents = "none";
   [...gameSection.children].forEach((child) => {
@@ -71,6 +99,7 @@ function stopGame(timeoutId) {
   });
 }
 
+// 게임에 실패했다는 것을 알려주는 기능
 function failGame() {
   header.style.pointerEvents = "none";
   clearInterval(timeoutId);
@@ -83,6 +112,7 @@ function failGame() {
   });
 }
 
+// 게임에 성공했다는 기능
 function successGame() {
   header.style.pointerEvents = "none";
   clearInterval(timeoutId);
@@ -95,6 +125,7 @@ function successGame() {
   });
 }
 
+// 당근과 벌레를 만들어주는 기능
 function makeItem(type, size, count) {
   const fragment = document.createDocumentFragment();
   const itemSize = size;
@@ -113,23 +144,10 @@ function makeItem(type, size, count) {
     item.style.transform = `translate(${itemX - left}px, ${itemY - top}px)`;
     fragment.appendChild(item);
   }
-
-  gameSection.addEventListener("click", (e) => {
-    if (e.target.className === "carrot") {
-      e.target.remove();
-      count--;
-      carrotCounter.lastElementChild.textContent = count;
-      if (count === 0) {
-        successGame();
-      }
-    } else if (e.target.className === "bug") {
-      failGame();
-    }
-  });
-
   gameSection.appendChild(fragment);
 }
 
+// 텍스트 박스를 만들어주는 기능
 function makeTextBox({ status, message }) {
   const box = document.createElement("div");
   box.setAttribute("class", "textBox");
@@ -154,7 +172,34 @@ function makeTextBox({ status, message }) {
   gameSection.appendChild(box);
 }
 
+// 두 수 사이의 랜덤값을 만들어주는 기능
 function getRandomNumber(min, max) {
   let radomNum = Math.floor(Math.random() * (max - min + 1)) + min;
   return radomNum;
+}
+
+class HeartMaker {
+  constructor() {
+    this.heart = 3;
+
+    const heartList = document.createElement("ul");
+    heartList.setAttribute("class", "heart-list");
+    for (let i = 0; i < this.heart; i++) {
+      const li = document.createElement("li");
+      const heartIcon = document.createElement("i");
+      heartIcon.setAttribute("class", "fas fa-heart");
+      li.appendChild(heartIcon);
+      heartList.appendChild(li);
+    }
+    header.appendChild(heartList);
+  }
+
+  decreaseHeart() {
+    this.heart--;
+    document.querySelector(".heart-list").firstElementChild.remove();
+    if (this.heart === 0) {
+      document.querySelector(".heart-list").remove();
+      failGame();
+    }
+  }
 }

@@ -12,6 +12,10 @@ button {
   background-color: inherit;
 }
 
+li {
+  list-style: none;
+}
+
 body {
   width: 100%;
   height: 100vh;
@@ -116,4 +120,16 @@ header {
 
 .textBox > button > i {
   font-size: 2rem;
+}
+
+.heart-list {
+  position: absolute;
+  display: flex;
+  gap: 0.2rem;
+  right: 12rem;
+}
+
+.heart-list > li > i {
+  font-size: 1.5rem;
+  color: red;
 }
